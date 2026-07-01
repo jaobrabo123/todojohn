@@ -1,0 +1,47 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Usuario {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String   @unique @db.VarChar(254)
+  senha           String?  @db.VarChar(255)
+  nome            String   @db.VarChar(100)
+  dataCricao      DateTime @default(now()) @map("data_criacao") @db.Timestamptz(6)
+  dataAtualizacao DateTime @updatedAt @map("data_atualizacao") @db.Timestamptz(6)
+  tarefas         Tarefa[]
+
+  @@map("usuario")
+}
+
+model Tarefa {
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome            String      @db.VarChar(100)
+  descricao       String      @db.VarChar(3000)
+  concluida       Boolean     @default(false)
+  usuarioId       String      @map("usuario_id") @db.Uuid
+  dataCricao      DateTime    @default(now()) @map("data_criacao") @db.Timestamptz(6)
+  dataAtualizacao DateTime    @updatedAt @map("data_atualizacao") @db.Timestamptz(6)
+  usuario         Usuario     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  subTarefas      SubTarefa[]
+
+  @@map("tarefa")
+}
+
+model SubTarefa {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome            String   @db.VarChar(100)
+  concluida       Boolean  @default(false)
+  tarefaId        String   @map("tarefa_id") @db.Uuid
+  dataCricao      DateTime @default(now()) @map("data_criacao") @db.Timestamptz(6)
+  dataAtualizacao DateTime @updatedAt @map("data_atualizacao") @db.Timestamptz(6)
+  tarefa          Tarefa   @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+
+  @@map("sub_tarefa")
+}
