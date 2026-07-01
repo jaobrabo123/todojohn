@@ -24,7 +24,8 @@ model Tarefa {
   id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome            String      @db.VarChar(100)
   descricao       String      @db.VarChar(3000)
-  concluida       Boolean     @default(false)
+  dataConclusao   DateTime?   @map("data_conclusao") @db.Timestamptz(6)
+  metaConclusao   DateTime?   @map("meta_conclusao") @db.Timestamptz(6)
   usuarioId       String      @map("usuario_id") @db.Uuid
   dataCricao      DateTime    @default(now()) @map("data_criacao") @db.Timestamptz(6)
   dataAtualizacao DateTime    @updatedAt @map("data_atualizacao") @db.Timestamptz(6)
@@ -35,13 +36,13 @@ model Tarefa {
 }
 
 model SubTarefa {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  nome            String   @db.VarChar(100)
-  concluida       Boolean  @default(false)
-  tarefaId        String   @map("tarefa_id") @db.Uuid
-  dataCricao      DateTime @default(now()) @map("data_criacao") @db.Timestamptz(6)
-  dataAtualizacao DateTime @updatedAt @map("data_atualizacao") @db.Timestamptz(6)
-  tarefa          Tarefa   @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome            String    @db.VarChar(100)
+  dataConclusao   DateTime? @map("data_conclusao") @db.Timestamptz(6)
+  tarefaId        String    @map("tarefa_id") @db.Uuid
+  dataCricao      DateTime  @default(now()) @map("data_criacao") @db.Timestamptz(6)
+  dataAtualizacao DateTime  @updatedAt @map("data_atualizacao") @db.Timestamptz(6)
+  tarefa          Tarefa    @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
 
   @@map("sub_tarefa")
 }

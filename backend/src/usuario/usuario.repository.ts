@@ -8,7 +8,7 @@ const usuarioVSRepo = setupVSRepo<Usuario, "Usuario">()({
     tableName: "usuario",
     pkName: "id",
     methods: {
-        findByEmail: { map: true },
+        findOneByEmail: { map: true },
         existsByEmail: { map: true },
     },
 });
