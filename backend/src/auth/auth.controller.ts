@@ -1,14 +1,29 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Post,
+    Req,
+    Res,
+    UseGuards,
+} from "@nestjs/common";
+import type { Response } from "express";
 import { AuthService } from "./auth.service";
 import { Public } from "./decorators/public.decorator";
 import { RegisterWithPasswordDto } from "./dto/register-with-password.dto";
 import { LoginWithPasswordDto } from "./dto/login-with-password.dto";
 import { GoogleAuthGuard } from "./guards/google-auth.guard";
 import { minutes, seconds, Throttle } from "@nestjs/throttler";
+import { ConfigService } from "@nestjs/config";
 
 @Controller("auth")
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor(
+        private readonly authService: AuthService,
+        private readonly configService: ConfigService,
+    ) {}
 
     @Public()
     @Post("register")
@@ -37,7 +52,20 @@ export class AuthController {
     @Public()
     @Get("google/callback")
     @UseGuards(GoogleAuthGuard)
-    async googleCallback(@Req() request: { user: { email?: string; nome?: string } }) {
-        return this.authService.loginWithGoogle(request.user);
+    async googleCallback(
+        @Req() request: { user: { email?: string; nome?: string } },
+        @Res() response: Response,
+    ) {
+        const frontendUrl =
+            this.configService.get<string>("FRONTEND_URL") ?? "http://localhost:5173";
+
+        try {
+            const { accessToken } = await this.authService.loginWithGoogle(request.user);
+            return response.redirect(
+                `${frontendUrl}/auth/google/callback?token=${encodeURIComponent(accessToken)}`,
+            );
+        } catch {
+            return response.redirect(`${frontendUrl}/login?error=google`);
+        }
     }
 }

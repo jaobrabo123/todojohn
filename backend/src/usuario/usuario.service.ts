@@ -27,6 +27,12 @@ export class UsuarioService {
         };
     }
 
+    async removeMe(user: RequestUser) {
+        const usuario = await this.usuarioRepository.get(user.sub);
+        this.assertUsuarioExists(usuario);
+        await this.usuarioRepository.remove(usuario.id);
+    }
+
     async save(data: UsuarioSaveObject) {
         return this.usuarioRepository.save(data);
     }

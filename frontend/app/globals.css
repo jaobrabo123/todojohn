@@ -1,0 +1,293 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #15161b;
+  --panel: #1d1f26;
+  --panel-raised: #24262f;
+  --hairline: #313340;
+  --hairline-soft: #26282f;
+  --bone: #eae7dd;
+  --bone-dim: #9c988f;
+  --bone-faint: #706c64;
+  --stamp: #d6543c;
+  --stamp-dim: #6b2c22;
+  --ledger-teal: #4fbfa0;
+  --ledger-teal-dim: #244d43;
+  --amber: #e0a63e;
+  --amber-dim: #4d3c1c;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
+  --color-hairline: var(--hairline);
+  --color-hairline-soft: var(--hairline-soft);
+  --color-bone: var(--bone);
+  --color-bone-dim: var(--bone-dim);
+  --color-bone-faint: var(--bone-faint);
+  --color-stamp: var(--stamp);
+  --color-stamp-dim: var(--stamp-dim);
+  --color-ledger-teal: var(--ledger-teal);
+  --color-ledger-teal-dim: var(--ledger-teal-dim);
+  --color-amber: var(--amber);
+  --color-amber-dim: var(--amber-dim);
+
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+}
+
+* {
+  border-color: var(--hairline);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-body);
+  background-image:
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--stamp) 5%, transparent),
+      transparent 220px
+    );
+}
+
+::selection {
+  background: var(--stamp-dim);
+  color: var(--bone);
+}
+
+/* Trilho vertical estilo lombada de livro-caixa */
+.ledger-spine {
+  position: relative;
+}
+
+.ledger-spine::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--hairline) 0,
+    var(--hairline) 4px,
+    transparent 4px,
+    transparent 9px
+  );
+}
+
+/* Selo/carimbo de conclusão */
+.stamp-box {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  flex-shrink: 0;
+  border: 1.5px solid var(--bone-faint);
+  border-radius: 3px;
+  background: transparent;
+  transform: rotate(-1.5deg);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+  cursor: pointer;
+}
+
+.stamp-box svg {
+  opacity: 0;
+  transform: scale(0.4) rotate(8deg);
+  transition: none;
+  stroke: var(--ink);
+}
+
+.stamp-box.is-done {
+  border-color: var(--ledger-teal);
+  background: var(--ledger-teal);
+  animation: stamp-thump 220ms cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.stamp-box.is-done svg {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  transition:
+    opacity 120ms ease 60ms,
+    transform 180ms cubic-bezier(0.2, 1.6, 0.4, 1) 60ms;
+}
+
+.stamp-box.is-done::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 6px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--ledger-teal) 35%, transparent),
+    transparent 70%
+  );
+  animation: ink-bleed 420ms ease-out;
+  pointer-events: none;
+}
+
+@keyframes stamp-thump {
+  0% {
+    transform: rotate(-1.5deg) scale(1);
+  }
+  35% {
+    transform: rotate(-4deg) scale(1.18);
+  }
+  60% {
+    transform: rotate(1deg) scale(0.94);
+  }
+  100% {
+    transform: rotate(-1.5deg) scale(1);
+  }
+}
+
+@keyframes ink-bleed {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+/* Texto com traço "riscado" desenhado, não o text-decoration padrão */
+.strike-text {
+  position: relative;
+  display: inline;
+}
+
+.strike-text::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 52%;
+  height: 1.5px;
+  background: var(--stamp);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 260ms ease-out;
+}
+
+.strike-text.is-struck::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp-box.is-done,
+  .stamp-box.is-done::after,
+  .strike-text::after {
+    animation: none;
+    transition: none;
+  }
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  cursor: pointer;
+}
+
+@layer components {
+  .input-field {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--hairline);
+    background: var(--panel-raised);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--bone);
+    outline: none;
+    transition: border-color 150ms ease;
+  }
+
+  .input-field::placeholder {
+    color: var(--bone-faint);
+  }
+
+  .input-field:focus {
+    border-color: var(--stamp);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 0.5rem;
+    background: var(--stamp);
+    padding: 0.6rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink);
+    transition:
+      transform 120ms ease,
+      opacity 120ms ease;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.92;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--hairline);
+    background: transparent;
+    padding: 0.6rem 1rem;
+    font-size: 0.875rem;
+    color: var(--bone-dim);
+    transition:
+      border-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--bone-dim);
+    color: var(--bone);
+  }
+
+  .btn-ghost-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    border-radius: 0.5rem;
+    border: 1px solid transparent;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+    color: var(--bone-faint);
+    transition:
+      border-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .btn-ghost-danger:hover {
+    border-color: var(--stamp-dim);
+    color: var(--stamp);
+  }
+}

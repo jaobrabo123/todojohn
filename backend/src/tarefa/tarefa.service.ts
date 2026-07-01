@@ -36,12 +36,12 @@ export class TarefaService {
     async update(id: string, dto: UpdateTarefaDTO, user: RequestUser) {
         const tarefa = await this.tarefaRepository.findOneByIdAndUsuarioId(id, user.sub);
         this.assertTarefaExists(tarefa);
-        return this.tarefaRepository.patch(id, dto);
+        return this.tarefaRepository.save({ ...tarefa, ...dto });
     }
 
     async remove(id: string, user: RequestUser) {
         const tarefa = await this.tarefaRepository.findOneByIdAndUsuarioId(id, user.sub);
         this.assertTarefaExists(tarefa);
-        await this.tarefaRepository.remove(id);
+        await this.tarefaRepository.remove(tarefa.id);
     }
 }

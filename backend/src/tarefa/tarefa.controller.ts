@@ -3,12 +3,12 @@ import {
     Get,
     Post,
     Body,
-    Patch,
     Param,
     Delete,
     Query,
     HttpCode,
     HttpStatus,
+    Put,
 } from "@nestjs/common";
 import { TarefaService } from "./tarefa.service";
 import { CreateTarefaDTO } from "./dto/create-tarefa.dto";
@@ -36,7 +36,7 @@ export class TarefaController {
         return this.tarefaService.findOne(id, user);
     }
 
-    @Patch(":id")
+    @Put(":id")
     update(
         @Param("id") id: string,
         @Body() dto: UpdateTarefaDTO,

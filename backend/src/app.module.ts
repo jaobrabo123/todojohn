@@ -16,7 +16,7 @@ import { SubTarefaModule } from "./sub-tarefa/sub-tarefa.module";
             {
                 name: "short",
                 ttl: seconds(1),
-                limit: 2,
+                limit: 3,
             },
             {
                 name: "long",
