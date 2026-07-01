@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { LogOut, UserRound } from "lucide-react";
 import { Brand } from "./Brand";
 import { useAuth } from "@/lib/auth-context";
 
@@ -17,9 +17,13 @@ export function Navbar() {
 
         <div className="flex items-center gap-4">
           {user && (
-            <span className="hidden font-mono text-xs text-bone-dim sm:inline">
+            <Link
+              href="/tarefas/conta"
+              className="hidden items-center gap-1.5 font-mono text-xs text-bone-dim transition-colors hover:text-bone sm:flex"
+            >
+              <UserRound size={13} />
               {user.nome}
-            </span>
+            </Link>
           )}
           <button
             type="button"

@@ -97,6 +97,12 @@ export function getMe() {
   return request<Usuario>("/usuarios/me");
 }
 
+export function deleteAccount() {
+  return request<void>("/usuarios/me", {
+    method: "DELETE",
+  });
+}
+
 // ---- Tarefas ----
 
 export function listTarefas(nome?: string) {
@@ -117,7 +123,7 @@ export function createTarefa(payload: CreateTarefaPayload) {
 
 export function updateTarefa(id: string, payload: UpdateTarefaPayload) {
   return request<Tarefa>(`/tarefas/${id}`, {
-    method: "PATCH",
+    method: "PUT",
     body: JSON.stringify(payload),
   });
 }

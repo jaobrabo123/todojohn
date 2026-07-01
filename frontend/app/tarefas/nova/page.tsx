@@ -41,8 +41,9 @@ export default function NovaTarefaPage() {
       const tarefa = await createTarefa({
         nome,
         descricao,
-        metaConclusao: metaConclusao ? new Date(metaConclusao).toISOString() : undefined,
-        subTarefas: subtarefas.map((s) => ({ nome: s.nome })),
+        metaConclusao: metaConclusao ? new Date(metaConclusao).toISOString() : null,
+        dataConclusao: null,
+        subTarefas: subtarefas.map((s) => ({ nome: s.nome, dataConclusao: null })),
       });
       router.push(`/tarefas/${tarefa.id}`);
     } catch (err) {

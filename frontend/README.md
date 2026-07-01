@@ -42,17 +42,26 @@ no backend. Se preferir outra porta da lista, é só trocar o `-p` no
 | Login | `POST` | `/auth/login` |
 | Login com Google | `GET` | `/auth/google` |
 | Usuário logado | `GET` | `/usuarios/me` |
+| Excluir minha conta | `DELETE` | `/usuarios/me` |
 | Listar tarefas (com busca opcional por nome) | `GET` | `/tarefas?nome=` |
 | Detalhe da tarefa | `GET` | `/tarefas/:id` |
 | Criar tarefa (com subtarefas) | `POST` | `/tarefas` |
-| Atualizar tarefa / concluir / gerenciar subtarefas | `PATCH` | `/tarefas/:id` |
+| Atualizar tarefa / concluir / gerenciar subtarefas | `PUT` | `/tarefas/:id` |
 | Excluir tarefa | `DELETE` | `/tarefas/:id` |
 
+O backend usa **PUT** (não PATCH) para atualizar tarefas: o corpo precisa ir
+completo (`nome`, `descricao`, `metaConclusao`, `dataConclusao`, `subTarefas`),
+não só os campos alterados. O helper `tarefaToPutPayload` (em `lib/utils.ts`)
+centraliza isso — ele parte do estado atual da tarefa e só sobrescreve o que
+realmente mudou, então toda ação (concluir tarefa, concluir subtarefa,
+renomear, adicionar, remover) sempre reenvia o objeto inteiro como o backend
+exige.
+
 Subtarefas não têm endpoints próprios no backend — elas são sempre
-criadas/atualizadas/removidas através do `PATCH /tarefas/:id`, enviando o
-array `subTarefas`. O frontend segue a mesma lógica: toda alteração em
-subtarefas (marcar como feita, renomear, adicionar, remover) dispara um PATCH
-na tarefa pai.
+criadas/atualizadas/removidas através do mesmo `PUT /tarefas/:id`, enviando o
+array `subTarefas` completo (cada item com `id` quando já existe, `nome` e
+`dataConclusao`). Itens sem `id` são criados; ids omitidos da lista são
+removidos.
 
 ## Login com Google
 
@@ -81,6 +90,7 @@ app/
     page.tsx         listagem + busca
     nova/            criar tarefa (com subtarefas)
     [id]/            detalhe, edição, subtarefas, exclusão
+    conta/           dados da conta + excluir conta permanentemente
 lib/
   api.ts            cliente HTTP central (fetch + Bearer token)
   auth-context.tsx  contexto de autenticação

@@ -5,9 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, X } from "lucide-react";
 import { ApiError, deleteTarefa, getTarefa, updateTarefa } from "@/lib/api";
-import type { SubTarefa, Tarefa, UpdateSubTarefaPayload } from "@/lib/types";
+import type { CreateSubTarefaPayload, SubTarefa, Tarefa } from "@/lib/types";
 import { StampCheckbox } from "@/components/StampCheckbox";
-import { cx, formatDateTime, toDateInputValue } from "@/lib/utils";
+import { cx, formatDateTime, tarefaToPutPayload, toDateInputValue } from "@/lib/utils";
 
 export default function TarefaDetailPage() {
   const params = useParams<{ id: string }>();
@@ -57,11 +57,14 @@ export default function TarefaDetailPage() {
     setIsSaving(true);
     setError(null);
     try {
-      const updated = await updateTarefa(tarefa.id, {
-        nome,
-        descricao,
-        metaConclusao: metaConclusao ? new Date(metaConclusao).toISOString() : null,
-      });
+      const updated = await updateTarefa(
+        tarefa.id,
+        tarefaToPutPayload(tarefa, {
+          nome,
+          descricao,
+          metaConclusao: metaConclusao ? new Date(metaConclusao).toISOString() : null,
+        }),
+      );
       setTarefa(updated);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Não foi possível salvar as alterações.");
@@ -72,26 +75,29 @@ export default function TarefaDetailPage() {
 
   async function handleToggleTarefa() {
     if (!tarefa) return;
-    const updated = await updateTarefa(tarefa.id, {
-      dataConclusao: tarefa.dataConclusao ? null : new Date().toISOString(),
-    });
+    const updated = await updateTarefa(
+      tarefa.id,
+      tarefaToPutPayload(tarefa, {
+        dataConclusao: tarefa.dataConclusao ? null : new Date().toISOString(),
+      }),
+    );
     setTarefa(updated);
   }
 
-  async function patchSubtarefas(payload: UpdateSubTarefaPayload[]) {
+  async function salvarSubtarefas(subTarefas: CreateSubTarefaPayload[]) {
     if (!tarefa) return;
-    const updated = await updateTarefa(tarefa.id, { subTarefas: payload });
+    const updated = await updateTarefa(tarefa.id, tarefaToPutPayload(tarefa, { subTarefas }));
     setTarefa(updated);
   }
 
   function handleToggleSubtarefa(sub: SubTarefa) {
     if (!tarefa) return;
-    const payload: UpdateSubTarefaPayload[] = tarefa.subTarefas.map((s) =>
-      s.id === sub.id
-        ? { id: s.id, dataConclusao: s.dataConclusao ? null : new Date().toISOString() }
-        : { id: s.id },
-    );
-    patchSubtarefas(payload);
+    const subTarefas: CreateSubTarefaPayload[] = tarefa.subTarefas.map((s) => ({
+      id: s.id,
+      nome: s.nome,
+      dataConclusao: s.id === sub.id ? (s.dataConclusao ? null : new Date().toISOString()) : s.dataConclusao,
+    }));
+    salvarSubtarefas(subTarefas);
   }
 
   function handleAdicionarSubtarefa() {
@@ -99,20 +105,20 @@ export default function TarefaDetailPage() {
     const texto = novaSubtarefa.trim();
     if (!texto) return;
 
-    const payload: UpdateSubTarefaPayload[] = [
-      ...tarefa.subTarefas.map((s) => ({ id: s.id })),
-      { nome: texto },
+    const subTarefas: CreateSubTarefaPayload[] = [
+      ...tarefa.subTarefas.map((s) => ({ id: s.id, nome: s.nome, dataConclusao: s.dataConclusao })),
+      { nome: texto, dataConclusao: null },
     ];
-    patchSubtarefas(payload);
+    salvarSubtarefas(subTarefas);
     setNovaSubtarefa("");
   }
 
   function handleRemoverSubtarefa(sub: SubTarefa) {
     if (!tarefa) return;
-    const payload: UpdateSubTarefaPayload[] = tarefa.subTarefas
+    const subTarefas: CreateSubTarefaPayload[] = tarefa.subTarefas
       .filter((s) => s.id !== sub.id)
-      .map((s) => ({ id: s.id }));
-    patchSubtarefas(payload);
+      .map((s) => ({ id: s.id, nome: s.nome, dataConclusao: s.dataConclusao }));
+    salvarSubtarefas(subTarefas);
   }
 
   async function handleExcluirTarefa() {

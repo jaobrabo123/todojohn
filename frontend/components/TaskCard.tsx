@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { StampCheckbox } from "./StampCheckbox";
-import { cx, formatDate, isOverdue } from "@/lib/utils";
+import { cx, formatDate, isOverdue, tarefaToPutPayload } from "@/lib/utils";
 import { updateTarefa } from "@/lib/api";
 import type { Tarefa } from "@/lib/types";
 
@@ -22,9 +22,12 @@ export function TaskCard({ tarefa, onChange }: TaskCardProps) {
   async function handleToggle() {
     setIsToggling(true);
     try {
-      const updated = await updateTarefa(tarefa.id, {
-        dataConclusao: isDone ? null : new Date().toISOString(),
-      });
+      const updated = await updateTarefa(
+        tarefa.id,
+        tarefaToPutPayload(tarefa, {
+          dataConclusao: isDone ? null : new Date().toISOString(),
+        }),
+      );
       onChange(updated);
     } finally {
       setIsToggling(false);

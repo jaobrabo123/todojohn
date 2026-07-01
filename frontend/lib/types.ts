@@ -52,29 +52,22 @@ export interface LoginPayload {
 }
 
 export interface CreateSubTarefaPayload {
+  id?: string;
   nome: string;
+  dataConclusao: string | null;
 }
 
 export interface CreateTarefaPayload {
   nome: string;
   descricao: string;
-  metaConclusao?: string;
-  subTarefas?: CreateSubTarefaPayload[];
+  metaConclusao: string | null;
+  dataConclusao: string | null;
+  subTarefas: CreateSubTarefaPayload[];
 }
 
-export interface UpdateSubTarefaPayload {
-  id?: string;
-  nome?: string;
-  dataConclusao?: string | null;
-}
-
-export interface UpdateTarefaPayload {
-  nome?: string;
-  descricao?: string;
-  metaConclusao?: string | null;
-  dataConclusao?: string | null;
-  subTarefas?: UpdateSubTarefaPayload[];
-}
+// O backend usa PUT para atualizar tarefas: o corpo precisa do objeto
+// completo (mesmo formato do create), não apenas dos campos alterados.
+export type UpdateTarefaPayload = CreateTarefaPayload;
 
 export interface ApiErrorBody {
   statusCode: number;
